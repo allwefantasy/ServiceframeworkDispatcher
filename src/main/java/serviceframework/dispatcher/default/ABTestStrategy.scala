@@ -9,7 +9,7 @@ import serviceframework.dispatcher.{Compositor, Processor, Strategy}
 /**
  * 4/19/16 WilliamZhu(allwefantasy@gmail.com)
  */
-class ABTestStrategy[T] extends Strategy {
+class ABTestStrategy[T] extends Strategy[T] {
   var _name: String = _
   var _ref: util.List[Strategy[T]] = _
   var _compositor: util.List[Compositor[T]] = _
@@ -57,7 +57,7 @@ class ABTestStrategy[T] extends Strategy {
     algOrStra.addAll(ref)
 
 
-    require(algOrStra.size() == 2, s"${getClass.getName} 要求 算法和策略必须只有两个")
+    require(algOrStra.size() == 2, s"算法和策略必须只有两个")
 
     val jack = algOrStra.filter(f => _configParams.containsKey(f.name))
     if (jack.size == 0) {
