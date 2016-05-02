@@ -14,4 +14,5 @@ trait Strategy[T] extends ServiceInj{
   def initialize(name:String,alg:JList[Processor[T]],ref:JList[Strategy[T]],com:JList[Compositor[T]],params:JMap[Any,Any])
   def result(params:JMap[Any,Any]):JList[T]
   def configParams:util.Map[Any, Any]
+  def stop = {}
 }

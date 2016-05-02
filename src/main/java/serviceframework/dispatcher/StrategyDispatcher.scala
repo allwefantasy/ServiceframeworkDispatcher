@@ -1,14 +1,18 @@
 package serviceframework.dispatcher
 
-import java.util.{Map => JMap, List => JList, UUID}
-import com.google.inject.{Inject, Singleton}
-import net.csdn.common.settings.Settings
-import net.csdn.common.env.Environment
-import net.sf.json.JSONObject
-import scala.collection.JavaConversions._
-import java.util.concurrent.ConcurrentHashMap
 import java.util
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicReference
+import java.util.{List => JList, Map => JMap, UUID}
+
+import com.google.inject.{Inject, Singleton}
+import net.csdn.common.env.Environment
 import net.csdn.common.logging.Loggers
+import net.csdn.common.settings.ImmutableSettings._
+import net.csdn.common.settings.Settings
+import net.sf.json.JSONObject
+
+import scala.collection.JavaConversions._
 
 
 /**
@@ -18,7 +22,7 @@ import net.csdn.common.logging.Loggers
 @Singleton
 class StrategyDispatcher[T] @Inject()(settings: Settings) {
 
-
+  self =>
   private val _strategies = new ConcurrentHashMap[String, Strategy[T]]()
   private val _config: JMap[String, JMap[_, _]] = loadConfig
   private val logger = Loggers.getLogger(classOf[StrategyDispatcher[T]])
@@ -30,7 +34,7 @@ class StrategyDispatcher[T] @Inject()(settings: Settings) {
   def dispatch(params: JMap[Any, Any]): JList[T] = {
     val clientType = if (params.containsKey("_client_")) params.get("_client_").asInstanceOf[String] else "app"
     params.put("_cache_", new util.HashMap[Any, Any]())
-    params.put("_token_", if(params.containsKey("_token_")) params.get("_token_") else UUID.randomUUID().getMostSignificantBits() + "")
+    params.put("_token_", if (params.containsKey("_token_")) params.get("_token_") else UUID.randomUUID().getMostSignificantBits() + "")
     findStrategies(clientType) match {
       case Some(strategies) =>
         val result = new util.ArrayList[T]()
@@ -99,6 +103,7 @@ class StrategyDispatcher[T] @Inject()(settings: Settings) {
 
   def reload = {
     synchronized {
+      _strategies.foreach(_._2.stop)
       _config.putAll(loadConfig)
       load
     }
@@ -116,7 +121,7 @@ class StrategyDispatcher[T] @Inject()(settings: Settings) {
     }
   }
 
-  private def createStrategy(name: String, desc: JMap[_, _]): Option[Strategy[T]] = {
+  def createStrategy(name: String, desc: JMap[_, _]): Option[Strategy[T]] = {
     if (_strategies.contains(name)) return None;
 
     require(desc.containsKey("strategy"), s"""$name 必须包含 strategy 字段。该字段定义策略实现类""")
@@ -178,6 +183,41 @@ class StrategyDispatcher[T] @Inject()(settings: Settings) {
         val configParams: JList[JMap[Any, Any]] = if (f.containsKey("params")) f.get("params").asInstanceOf[JList[JMap[Any, Any]]] else new java.util.ArrayList[JMap[Any, Any]]()
         compositor.initialize(f.get("typeFilter").asInstanceOf[JList[String]], configParams)
         compositor
+    }
+  }
+
+}
+
+object StrategyDispatcher {
+
+  private val INSTANTIATION_LOCK = new Object()
+
+
+  @transient private val lastInstantiatedContext = new AtomicReference[StrategyDispatcher[Any]]()
+
+
+  def getOrCreate(settings: Settings): StrategyDispatcher[Any] = {
+    INSTANTIATION_LOCK.synchronized {
+      if (lastInstantiatedContext.get() == null) {
+        setLastInstantiatedContext(new StrategyDispatcher[Any](settings))
+      }
+    }
+    lastInstantiatedContext.get()
+  }
+
+  def getOrCreate(): StrategyDispatcher[Any] = {
+    INSTANTIATION_LOCK.synchronized {
+      if (lastInstantiatedContext.get() == null) {
+        val settings: Settings = settingsBuilder.build()
+        setLastInstantiatedContext(new StrategyDispatcher(settings))
+      }
+    }
+    lastInstantiatedContext.get()
+  }
+
+  private def setLastInstantiatedContext(strategyDispatcher: StrategyDispatcher[Any]): Unit = {
+    INSTANTIATION_LOCK.synchronized {
+      lastInstantiatedContext.set(strategyDispatcher)
     }
   }
 }

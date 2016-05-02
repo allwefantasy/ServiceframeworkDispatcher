@@ -10,4 +10,5 @@ trait Processor[T] extends ServiceInj{
   def initialize(name:String,params:JList[JMap[Any,Any]])
   def result(params:JMap[Any,Any]):JList[T]
   def name():String
+  def stop = {}
 }
