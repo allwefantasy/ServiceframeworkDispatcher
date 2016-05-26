@@ -199,20 +199,24 @@ object StrategyDispatcher {
   @transient private val lastInstantiatedContext = new AtomicReference[StrategyDispatcher[Any]]()
 
 
-  def getOrCreate(settings: Settings): StrategyDispatcher[Any] = {
+  def getOrCreate(configFile: String, settings: Settings): StrategyDispatcher[Any] = {
     INSTANTIATION_LOCK.synchronized {
       if (lastInstantiatedContext.get() == null) {
-        setLastInstantiatedContext(new StrategyDispatcher[Any](settings))
+        val temp = new StrategyDispatcher[Any](settings)
+        temp.loadConfig(configFile)
+        setLastInstantiatedContext(temp)
       }
     }
     lastInstantiatedContext.get()
   }
 
-  def getOrCreate(): StrategyDispatcher[Any] = {
+  def getOrCreate(configFile: String): StrategyDispatcher[Any] = {
     INSTANTIATION_LOCK.synchronized {
       if (lastInstantiatedContext.get() == null) {
         val settings: Settings = settingsBuilder.build()
-        setLastInstantiatedContext(new StrategyDispatcher(settings))
+        val temp = new StrategyDispatcher[Any](settings)
+        temp.loadConfig(configFile)
+        setLastInstantiatedContext(temp)
       }
     }
     lastInstantiatedContext.get()
