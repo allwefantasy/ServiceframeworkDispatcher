@@ -24,10 +24,9 @@ class StrategyDispatcher[T] @Inject()(settings: Settings) {
 
   self =>
   private val _strategies = new ConcurrentHashMap[String, Strategy[T]]()
-  private val _config: JMap[String, JMap[_, _]] = loadConfig
   private val logger = Loggers.getLogger(classOf[StrategyDispatcher[T]])
 
-  load
+  private var _config: JMap[String, JMap[_, _]] = new java.util.HashMap[String, JMap[_, _]]()
 
   def strategies = _strategies
 
@@ -101,17 +100,21 @@ class StrategyDispatcher[T] @Inject()(settings: Settings) {
     }
   }
 
-  def reload = {
+  def reload(configStr: String) = {
     synchronized {
       _strategies.foreach(_._2.stop)
-      _config.putAll(loadConfig)
-      load
+      loadConfig(configStr)
     }
 
   }
 
-  private def loadConfig = {
-    JSONObject.fromObject(new Environment(settings).resolveConfigAndLoadToString(settings.get("application.strategy.config.file", "strategy.v2.json"))).asInstanceOf[JMap[String, JMap[_, _]]]
+  def loadConfig(configStr: String) = {
+    if (configStr != null) {
+      _config = JSONObject.fromObject(configStr).asInstanceOf[JMap[String, JMap[_, _]]]
+    } else {
+      _config = JSONObject.fromObject(new Environment(settings).resolveConfigAndLoadToString(settings.get("application.strategy.config.file", "strategy.v2.json"))).asInstanceOf[JMap[String, JMap[_, _]]]
+    }
+    load
   }
 
   private def load = {
