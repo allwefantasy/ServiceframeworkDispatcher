@@ -222,6 +222,10 @@ object StrategyDispatcher {
     lastInstantiatedContext.get()
   }
 
+  def clear ={
+    lastInstantiatedContext.set(null)
+  }
+
   private def setLastInstantiatedContext(strategyDispatcher: StrategyDispatcher[Any]): Unit = {
     INSTANTIATION_LOCK.synchronized {
       lastInstantiatedContext.set(strategyDispatcher)
