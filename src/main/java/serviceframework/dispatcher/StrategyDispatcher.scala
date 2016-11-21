@@ -108,6 +108,14 @@ class StrategyDispatcher[T] @Inject()(settings: Settings) {
 
   }
 
+  private var shortNameMapping: ShortNameMapping = new ShortNameMapping {
+    override def forName(shortName: String): String = shortName
+  }
+
+  def configShortNameMapping(mapping: ShortNameMapping) = {
+    shortNameMapping = mapping
+  }
+
   def loadConfig(configStr: String) = {
     if (configStr != null) {
       _config = JSONObject.fromObject(configStr).asInstanceOf[JMap[String, JMap[_, _]]]
@@ -129,7 +137,7 @@ class StrategyDispatcher[T] @Inject()(settings: Settings) {
 
     require(desc.containsKey("strategy"), s"""$name 必须包含 strategy 字段。该字段定义策略实现类""")
 
-    val strategy = Class.forName(desc.get("strategy").asInstanceOf[String]).newInstance().asInstanceOf[Strategy[T]]
+    val strategy = Class.forName(shortNameMapping.forName(desc.get("strategy").asInstanceOf[String])).newInstance().asInstanceOf[Strategy[T]]
     val configParams: JMap[Any, Any] = if (desc.containsKey("configParams")) desc.get("configParams").asInstanceOf[JMap[Any, Any]] else new java.util.HashMap()
     strategy.initialize(name, createAlgorithms(desc), createRefs(desc), createCompositors(desc), configParams)
     _strategies.put(name, strategy)
@@ -146,7 +154,7 @@ class StrategyDispatcher[T] @Inject()(settings: Settings) {
     rs.asInstanceOf[JList[JMap[_, _]]].map {
       alg =>
         val name = alg.get("name").asInstanceOf[String]
-        val temp = Class.forName(name).newInstance().asInstanceOf[Processor[T]]
+        val temp = Class.forName(shortNameMapping.forName(name)).newInstance().asInstanceOf[Processor[T]]
         val configParams: JList[JMap[Any, Any]] = if (alg.containsKey("params")) alg.get("params").asInstanceOf[JList[JMap[Any, Any]]] else new java.util.ArrayList[JMap[Any, Any]]()
         temp.initialize(name, configParams)
         temp
@@ -182,13 +190,17 @@ class StrategyDispatcher[T] @Inject()(settings: Settings) {
     val temp = desc.get("compositor").asInstanceOf[JList[JMap[_, _]]]
     temp.map {
       f =>
-        val compositor = Class.forName(f.get("name").asInstanceOf[String]).newInstance().asInstanceOf[Compositor[T]]
+        val compositor = Class.forName(shortNameMapping.forName(f.get("name").asInstanceOf[String])).newInstance().asInstanceOf[Compositor[T]]
         val configParams: JList[JMap[Any, Any]] = if (f.containsKey("params")) f.get("params").asInstanceOf[JList[JMap[Any, Any]]] else new java.util.ArrayList[JMap[Any, Any]]()
         compositor.initialize(f.get("typeFilter").asInstanceOf[JList[String]], configParams)
         compositor
     }
   }
 
+}
+
+trait ShortNameMapping {
+  def forName(shortName: String): String
 }
 
 object StrategyDispatcher {
@@ -199,10 +211,13 @@ object StrategyDispatcher {
   @transient private val lastInstantiatedContext = new AtomicReference[StrategyDispatcher[Any]]()
 
 
-  def getOrCreate(configFile: String, settings: Settings): StrategyDispatcher[Any] = {
+  def getOrCreate(configFile: String, settings: Settings,shortNameMapping: ShortNameMapping): StrategyDispatcher[Any] = {
     INSTANTIATION_LOCK.synchronized {
       if (lastInstantiatedContext.get() == null) {
         val temp = new StrategyDispatcher[Any](settings)
+        if(shortNameMapping!=null){
+          temp.configShortNameMapping(shortNameMapping)
+        }
         temp.loadConfig(configFile)
         setLastInstantiatedContext(temp)
       }
@@ -210,11 +225,14 @@ object StrategyDispatcher {
     lastInstantiatedContext.get()
   }
 
-  def getOrCreate(configFile: String): StrategyDispatcher[Any] = {
+  def getOrCreate(configFile: String,shortNameMapping: ShortNameMapping): StrategyDispatcher[Any] = {
     INSTANTIATION_LOCK.synchronized {
       if (lastInstantiatedContext.get() == null) {
         val settings: Settings = settingsBuilder.build()
         val temp = new StrategyDispatcher[Any](settings)
+        if(shortNameMapping!=null){
+          temp.configShortNameMapping(shortNameMapping)
+        }
         temp.loadConfig(configFile)
         setLastInstantiatedContext(temp)
       }
@@ -222,7 +240,7 @@ object StrategyDispatcher {
     lastInstantiatedContext.get()
   }
 
-  def clear ={
+  def clear = {
     lastInstantiatedContext.set(null)
   }
 
