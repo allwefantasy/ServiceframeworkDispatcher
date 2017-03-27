@@ -6,17 +6,46 @@
 
     <groupId>serviceframework</groupId>
     <artifactId>Dispatcher</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT-${scala.binary.version}</version>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <scala.version>2.10.3</scala.version>
+        <scala.binary.version>2.10</scala.binary.version>
+        <scala.jline.version>2.10.3</scala.jline.version>
+    </properties>
+
+    <profiles>
+
+        <profile>
+            <id>scala-2.11</id>
+            <properties>
+                <scala.version>2.11.8</scala.version>
+                <scala.binary.version>2.11</scala.binary.version>
+                <scala.jline.version>2.11.0-M3</scala.jline.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>scala-2.10</id>
+            <properties>
+                <scala.version>2.10.3</scala.version>
+                <scala.binary.version>2.10</scala.binary.version>
+                <scala.jline.version>2.10.3</scala.jline.version>
+            </properties>
+
+        </profile>
+    </profiles>
+
     <dependencies>
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <version>2.10.3</version>
+            <version>${scala.version}</version>
         </dependency>
         <dependency>
             <groupId>net.csdn</groupId>
             <artifactId>ServiceFramework</artifactId>
-            <version>1.3.0-SNAPSHOT</version>
+            <version>1.3.2-SNAPSHOT-${scala.binary.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -96,13 +125,14 @@
 
     <distributionManagement>
         <repository>
-            <id>releases</id>
-            <name>releases</name>
-            <url>http://mvn.letv.com/nexus/content/repositories/releases/</url>
+            <id>nexus-releases</id>
+            <name>Nexus Release Repository</name>
+            <url>http://nexus.dxy.net/nexus/content/repositories/releases/</url>
         </repository>
         <snapshotRepository>
-            <id>snapshots</id>
-            <url>http://mvn.letv.com/nexus/content/repositories/snapshots</url>
+            <id>nexus-snapshots</id>
+            <name>Nexus Snapshot Repository</name>
+            <url>http://nexus.dxy.net/nexus/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 

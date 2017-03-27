@@ -225,6 +225,17 @@ object StrategyDispatcher {
     lastInstantiatedContext.get()
   }
 
+  def getOrCreate(configFile: String, settings: Settings): StrategyDispatcher[Any] = {
+    INSTANTIATION_LOCK.synchronized {
+      if (lastInstantiatedContext.get() == null) {
+        val temp = new StrategyDispatcher[Any](settings)
+        temp.loadConfig(configFile)
+        setLastInstantiatedContext(temp)
+      }
+    }
+    lastInstantiatedContext.get()
+  }
+
   def getOrCreate(configFile: String,shortNameMapping: ShortNameMapping): StrategyDispatcher[Any] = {
     INSTANTIATION_LOCK.synchronized {
       if (lastInstantiatedContext.get() == null) {
@@ -233,6 +244,18 @@ object StrategyDispatcher {
         if(shortNameMapping!=null){
           temp.configShortNameMapping(shortNameMapping)
         }
+        temp.loadConfig(configFile)
+        setLastInstantiatedContext(temp)
+      }
+    }
+    lastInstantiatedContext.get()
+  }
+
+  def getOrCreate(configFile: String): StrategyDispatcher[Any] = {
+    INSTANTIATION_LOCK.synchronized {
+      if (lastInstantiatedContext.get() == null) {
+        val settings: Settings = settingsBuilder.build()
+        val temp = new StrategyDispatcher[Any](settings)
         temp.loadConfig(configFile)
         setLastInstantiatedContext(temp)
       }
