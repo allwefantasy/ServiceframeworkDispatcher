@@ -48,17 +48,14 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.springframework:spring:2.5.6.SEC03" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.javassist:javassist:3.15.0-GA" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.jboss.netty:netty:3.2.5.Final" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: net.csdn:framework-jetty-8:1.3.2-SNAPSHOT-2.11" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: net.csdn:framework-common:1.3.2-SNAPSHOT-2.10" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: net.csdn:csdn-common:1.5-SNAPSHOT" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: javax.servlet:servlet-api:2.5" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-server:8.0.4.v20111024" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.mortbay.jetty:servlet-api:3.0.20100224" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-continuation:8.0.4.v20111024" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-io:8.0.4.v20111024" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-http:8.0.4.v20111024" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-util:8.0.4.v20111024" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-servlet:8.0.4.v20111024" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-security:8.0.4.v20111024" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: net.csdn:serviceframework-jetty-9-server:1.3.2-SNAPSHOT" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-server:9.2.16.v20160414" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: javax.servlet:javax.servlet-api:3.1.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-continuation:9.2.16.v20160414" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-io:9.2.16.v20160414" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-http:9.2.16.v20160414" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-util:9.2.16.v20160414" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-servlet:9.2.16.v20160414" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.jetty:jetty-security:9.2.16.v20160414" level="project" />
   </component>
 </module>
